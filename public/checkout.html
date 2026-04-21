@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=20" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">BlackOrbit Checkout</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/">Home</a>
+      <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="dashboard-top">
+      <div>
+        <h1>Checkout</h1>
+        <p>Select your hosting plan and continue to secure Stripe Checkout.</p>
+      </div>
+    </div>
+
+    <div id="messageBox"></div>
+
+    <div class="checkout-layout">
+      <form action="/create-checkout-session" method="POST" class="dashboard-card">
+        <h3>Starter</h3>
+        <p class="small-muted">1 GB RAM • 10 GB NVMe • Shared CPU</p>
+        <div class="metric">$3.99</div>
+        <input type="hidden" name="plan" value="starter" />
+        <div class="quick-actions">
+          <button type="submit" class="btn btn-primary">Subscribe with Stripe</button>
+        </div>
+      </form>
+
+      <form action="/create-checkout-session" method="POST" class="dashboard-card plan-highlight">
+        <h3>Growth</h3>
+        <p class="small-muted">3 GB RAM • 25 GB NVMe • 2 vCPU Threads</p>
+        <div class="metric">$6.99</div>
+        <input type="hidden" name="plan" value="growth" />
+        <div class="quick-actions">
+          <button type="submit" class="btn btn-primary">Subscribe with Stripe</button>
+        </div>
+      </form>
+
+      <form action="/create-checkout-session" method="POST" class="dashboard-card">
+        <h3>Pro</h3>
+        <p class="small-muted">6 GB RAM • 60 GB NVMe • 4 vCPU Threads</p>
+        <div class="metric">$11.99</div>
+        <input type="hidden" name="plan" value="pro" />
+        <div class="quick-actions">
+          <button type="submit" class="btn btn-primary">Subscribe with Stripe</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const errorMessages = {
+      invalid_plan: "Invalid plan.",
+      canceled: "Checkout canceled.",
+      server_error: "Server error."
+    };
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+  </script>
+</body>
+</html>

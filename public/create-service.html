@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Service - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Create Service</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="section-card">
+      <div id="messageBox"></div>
+
+      <div class="dashboard-card">
+        <h3>Create Your Service</h3>
+        <p class="small-muted">Deploy a new bot or app instance to your hosting account.</p>
+
+        <form action="/create-service" method="POST" style="margin-top: 20px;">
+          <div class="form-group">
+            <label>Service Name</label>
+            <input type="text" name="serviceName" placeholder="my-discord-bot" required />
+          </div>
+
+          <div class="form-group">
+            <label>Runtime</label>
+            <select name="runtime" required>
+              <option value="">Select runtime</option>
+              <option value="Node.js">Node.js</option>
+              <option value="Python">Python</option>
+              <option value="Java">Java</option>
+              <option value="Bun">Bun</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Region</label>
+            <select name="region" required>
+              <option value="">Select region</option>
+              <option value="US East">US East</option>
+              <option value="US West">US West</option>
+              <option value="Germany">Germany</option>
+              <option value="Brazil">Brazil</option>
+            </select>
+          </div>
+
+          <div class="quick-actions">
+            <button type="submit" class="btn btn-primary">Create Service</button>
+            <a class="btn btn-secondary" href="/dashboard">Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const errorMessages = {
+      empty_fields: "Please fill in all fields.",
+      service_exists: "A service with this name already exists.",
+      plan_limit_reached: "You reached your current plan service limit.",
+      server_error: "Server error."
+    };
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1776732254906,
+    "username": "lznnn7zx",
+    "email": "EmailTestLZ@gmail.com",
+    "password": "123",
+    "activePlan": {
+      "key": "growth",
+      "name": "Growth",
+      "price": "$4.99/mo",
+      "amount": "4.99",
+      "specs": "3 GB RAM • 25 GB NVMe • 2 vCPU Threads"
+    },
+    "paymentMethod": "Pix",
+    "paymentSummary": "Pix payer: dasd",
+    "invoices": [
+      {
+        "id": 1776736735041,
+        "invoiceNumber": "INV-1776736735041",
+        "description": "Growth Plan",
+        "amount": "$4.99",
+        "status": "Paid",
+        "paymentMethod": "Pix",
+        "issueDate": "20/04/2026",
+        "renewalDate": "20/05/2026"
+      }
+    ]
+  }
+]

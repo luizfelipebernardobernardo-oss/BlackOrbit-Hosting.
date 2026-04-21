@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Ticket Details</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/support">Support</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div id="messageBox"></div>
+
+    <div class="section-card">
+      <div class="dashboard-card">
+        <h3 id="ticketSubject">Ticket</h3>
+        <p class="small-muted" id="ticketMeta">Loading...</p>
+
+        <div id="messagesList" class="messages-list"></div>
+
+        <form action="/ticket/reply" method="POST" style="margin-top: 20px;">
+          <input type="hidden" name="ticketId" id="ticketIdInput" />
+
+          <div class="form-group">
+            <label>Reply</label>
+            <textarea name="message" placeholder="Write your reply..." required></textarea>
+          </div>
+
+          <div class="quick-actions">
+            <button type="submit" class="btn btn-primary">Send Reply</button>
+            <a class="btn btn-secondary" href="/support">Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ticketId = params.get("id");
+    const success = params.get("success");
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const successMessages = {
+      ticket_created: "Ticket created successfully.",
+      reply_sent: "Reply sent successfully."
+    };
+
+    const errorMessages = {
+      empty_fields: "Please fill in all fields."
+    };
+
+    if (success && successMessages[success]) {
+      box.innerHTML = `<div class="alert alert-success">${successMessages[success]}</div>`;
+    }
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+
+    fetch(`/api/ticket?id=${ticketId}`)
+      .then((res) => {
+        if (!res.ok) {
+          window.location.href = "/support?error=ticket_not_found";
+          return;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        document.getElementById("ticketSubject").textContent = data.ticket.subject;
+        document.getElementById("ticketMeta").textContent =
+          `Status: ${data.ticket.status} • Created: ${new Date(data.ticket.created_at).toLocaleString()}`;
+        document.getElementById("ticketIdInput").value = data.ticket.id;
+
+        const messagesList = document.getElementById("messagesList");
+
+        messagesList.innerHTML = data.messages
+          .map(
+            (message) => `
+              <div class="ticket-message">
+                <div class="message-role">${message.sender_role}</div>
+                <p>${message.message}</p>
+                <p class="small-muted">${new Date(message.created_at).toLocaleString()}</p>
+              </div>
+            `
+          )
+          .join("");
+      });
+  </script>
+</body>
+</html>

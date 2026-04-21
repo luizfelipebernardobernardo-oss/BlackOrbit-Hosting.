@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=7" />
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">BlackOrbit</div>
+
+  <div class="nav-links">
+    <a class="btn btn-secondary" href="/">Home</a>
+    <a class="btn btn-secondary" href="/register.html">Register</a>
+  </div>
+</header>
+
+<main class="auth-wrapper">
+
+  <div class="auth-card">
+
+    <h1>Login</h1>
+
+    <p class="small-muted">
+      Access your client area and manage your hosting services.
+    </p>
+
+    <div id="messageBox"></div>
+
+    <form action="/login" method="POST">
+
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-btn">
+        Login
+      </button>
+
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account?
+      <a href="/register.html">Create one</a>
+    </p>
+
+  </div>
+
+</main>
+
+<script>
+const params = new URLSearchParams(window.location.search)
+
+const success = params.get("success")
+const error = params.get("error")
+
+const box = document.getElementById("messageBox")
+
+const successMessages = {
+  logged_out: "You have been logged out successfully."
+}
+
+const errorMessages = {
+  empty_fields: "Please fill in all fields.",
+  account_not_found: "Account not found.",
+  wrong_password: "Incorrect password.",
+  login_required: "Please login first.",
+  server_error: "Server error."
+}
+
+if (success && successMessages[success]) {
+  box.innerHTML =
+    `<div class="alert alert-success">${successMessages[success]}</div>`
+}
+
+if (error && errorMessages[error]) {
+  box.innerHTML =
+    `<div class="alert alert-error">${errorMessages[error]}</div>`
+}
+</script>
+
+</body>
+</html>

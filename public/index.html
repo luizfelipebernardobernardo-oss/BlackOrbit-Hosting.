@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlackOrbit Hosting</title>
+  <link rel="stylesheet" href="style.css?v=6" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">BlackOrbit</div>
+
+    <div class="nav-links" id="navLinks">
+      <a class="btn btn-secondary" href="#plans">Plans</a>
+      <a class="btn btn-secondary" href="#features">Features</a>
+      <a class="btn btn-secondary" href="#faq">FAQ</a>
+      <a class="btn btn-secondary" href="/login.html">Login</a>
+      <a class="btn btn-primary" href="/register.html">Register</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Premium Bot Hosting</h1>
+      <p>
+        Deploy your Discord bot, Telegram bot or custom app with reliable uptime,
+        modern infrastructure, and a clean client area.
+      </p>
+
+      <div class="hero-buttons" id="heroButtons">
+        <a class="btn btn-primary" href="/register.html">Get Started</a>
+        <a class="btn btn-secondary" href="/login.html">Client Login</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="landing-content">
+    <section id="plans" class="section-block">
+      <div class="section-heading">
+        <h2>Hosting Plans</h2>
+        <p>Choose the perfect plan for your bot project.</p>
+      </div>
+
+      <div class="landing-grid">
+        <div class="plan-card">
+          <h3>Starter</h3>
+          <p class="small-muted">For beginners</p>
+          <div class="plan-price">$3.99</div>
+          <p>1 GB RAM • 10 GB NVMe • Shared CPU</p>
+          <div class="quick-actions">
+            <a class="btn btn-primary" href="/checkout?plan=starter">Order Now</a>
+          </div>
+        </div>
+
+        <div class="plan-card featured-plan">
+          <h3>Growth</h3>
+          <p class="small-muted">Most Popular</p>
+          <div class="plan-price">$6.99</div>
+          <p>3 GB RAM • 25 GB NVMe • 2 vCPU Threads</p>
+          <div class="quick-actions">
+            <a class="btn btn-primary" href="/checkout?plan=growth">Order Now</a>
+          </div>
+        </div>
+
+        <div class="plan-card">
+          <h3>Pro</h3>
+          <p class="small-muted">For larger bots</p>
+          <div class="plan-price">$11.99</div>
+          <p>6 GB RAM • 60 GB NVMe • 4 vCPU Threads</p>
+          <div class="quick-actions">
+            <a class="btn btn-primary" href="/checkout?plan=pro">Order Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section-block">
+      <div class="section-heading">
+        <h2>Features</h2>
+        <p>Everything you need for stable bot hosting.</p>
+      </div>
+
+      <div class="landing-grid">
+        <div class="feature-card">
+          <h3>Instant Setup</h3>
+          <p>Your service is ready fast so you can deploy without waiting around.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>24/7 Support</h3>
+          <p>Get help whenever you need assistance with setup or services.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>DDoS Protection</h3>
+          <p>Protected infrastructure for better uptime and stability.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Fast Hardware</h3>
+          <p>Good performance for Discord bots, music bots and custom apps.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Modern Panel</h3>
+          <p>A clean client area for managing plans, services and future billing.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Scalable</h3>
+          <p>Upgrade later when your bot grows and needs more resources.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section-block">
+      <div class="section-heading">
+        <h2>FAQ</h2>
+        <p>Answers to the most common questions.</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-card">
+          <h3>What can I host?</h3>
+          <p>You can host Discord bots, Telegram bots and lightweight custom apps.</p>
+        </div>
+
+        <div class="faq-card">
+          <h3>Can I upgrade later?</h3>
+          <p>Yes. You can move to a larger plan whenever your project grows.</p>
+        </div>
+
+        <div class="faq-card">
+          <h3>Do I need an account first?</h3>
+          <p>Yes. Create an account first, then access the client area and order services.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="cta-card">
+        <h3>Ready to launch your bot?</h3>
+        <p>
+          Create your account now and start building your hosting brand with a clean,
+          modern client area.
+        </p>
+
+        <div class="quick-actions" id="ctaButtons">
+          <a class="btn btn-primary" href="/register.html">Create Account</a>
+          <a class="btn btn-secondary" href="/login.html">Login</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    fetch("/api/me")
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((user) => {
+        if (!user) return;
+
+        document.getElementById("navLinks").innerHTML = `
+          <a class="btn btn-secondary" href="#plans">Plans</a>
+          <a class="btn btn-secondary" href="#features">Features</a>
+          <a class="btn btn-secondary" href="#faq">FAQ</a>
+          <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+          <a class="btn btn-primary" href="/logout">Logout</a>
+        `;
+
+        document.getElementById("heroButtons").innerHTML = `
+          <a class="btn btn-primary" href="/dashboard">Go to Dashboard</a>
+          <a class="btn btn-secondary" href="/checkout">Buy Plan</a>
+        `;
+
+        document.getElementById("ctaButtons").innerHTML = `
+          <a class="btn btn-primary" href="/dashboard">Open Dashboard</a>
+          <a class="btn btn-secondary" href="/checkout">Choose Plan</a>
+        `;
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Services - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Manage Services</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div id="messageBox"></div>
+
+    <div class="dashboard-top">
+      <div>
+        <h1>Your Services</h1>
+        <p>Start, stop, restart, delete, and open the full service panel.</p>
+      </div>
+    </div>
+
+    <div id="servicesList" class="dashboard-grid"></div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const successMessages = {
+      service_updated: "Service action completed successfully."
+    };
+
+    const errorMessages = {
+      service_not_found: "Service not found.",
+      server_error: "Server error."
+    };
+
+    if (success && successMessages[success]) {
+      box.innerHTML = `<div class="alert alert-success">${successMessages[success]}</div>`;
+    }
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+
+    fetch("/api/me")
+      .then((res) => res.json())
+      .then((user) => {
+        const list = document.getElementById("servicesList");
+
+        if (!user.services || user.services.length === 0) {
+          list.innerHTML = `
+            <div class="dashboard-card big-card">
+              <h3>No services yet</h3>
+              <p>Create your first service to manage it here.</p>
+              <div class="quick-actions">
+                <a class="btn btn-primary" href="/create-service">Create Service</a>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = user.services
+          .map(
+            (service) => `
+              <div class="dashboard-card">
+                <h3>${service.name}</h3>
+                <p class="small-muted">${service.runtime} • ${service.region}</p>
+                <p>Status: <span class="${service.status === "Online" ? "badge-online" : "badge-offline"}">${service.status}</span></p>
+
+                <div class="quick-actions">
+                  <a class="btn btn-secondary" href="/service?id=${service.id}">Open Panel</a>
+
+                  <form action="/service-action" method="POST">
+                    <input type="hidden" name="serviceId" value="${service.id}" />
+                    <input type="hidden" name="action" value="start" />
+                    <button type="submit" class="btn btn-primary">Start</button>
+                  </form>
+
+                  <form action="/service-action" method="POST">
+                    <input type="hidden" name="serviceId" value="${service.id}" />
+                    <input type="hidden" name="action" value="stop" />
+                    <button type="submit" class="btn btn-secondary">Stop</button>
+                  </form>
+
+                  <form action="/service-action" method="POST">
+                    <input type="hidden" name="serviceId" value="${service.id}" />
+                    <input type="hidden" name="action" value="restart" />
+                    <button type="submit" class="btn btn-secondary">Restart</button>
+                  </form>
+
+                  <form action="/service-action" method="POST">
+                    <input type="hidden" name="serviceId" value="${service.id}" />
+                    <input type="hidden" name="action" value="delete" />
+                    <button type="submit" class="btn btn-secondary">Delete</button>
+                  </form>
+                </div>
+              </div>
+            `
+          )
+          .join("");
+      });
+  </script>
+</body>
+</html>

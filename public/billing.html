@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=30" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">BlackOrbit Billing</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div id="messageBox"></div>
+
+    <div class="dashboard-top">
+      <div>
+        <h1>Billing & Subscription</h1>
+        <p>Manage your Stripe subscription, invoices, and billing details.</p>
+      </div>
+    </div>
+
+    <div class="billing-summary">
+      <div class="dashboard-card">
+        <h3>Active Plan</h3>
+        <div class="summary-number" id="billingPlan">-</div>
+        <p class="small-muted" id="billingPlanSpecs">No active plan</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Payment Method</h3>
+        <div class="summary-number" id="billingMethod">-</div>
+        <p class="small-muted" id="billingMethodSummary">No payment method</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Total Invoices</h3>
+        <div class="summary-number" id="billingInvoiceCount">0</div>
+        <p class="small-muted">Generated from successful payments</p>
+      </div>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>Billing Actions</h3>
+      <div class="quick-actions" id="billingActions">
+        <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <div class="dashboard-card" style="margin-top: 16px;">
+      <h3>Invoice History</h3>
+
+      <div class="table-wrap">
+        <table class="billing-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Payment Method</th>
+              <th>Issue Date</th>
+              <th>Renewal Date</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceTableBody">
+            <tr>
+              <td colspan="7" class="empty-cell">No invoices yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const successMessages = {
+      subscription_canceled: "Subscription canceled successfully."
+    };
+
+    const errorMessages = {
+      no_stripe_customer: "No Stripe customer found for this account.",
+      no_subscription: "No active subscription found.",
+      server_error: "Server error."
+    };
+
+    if (success && successMessages[success]) {
+      box.innerHTML = `<div class="alert alert-success">${successMessages[success]}</div>`;
+    }
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+
+    fetch("/api/me")
+      .then((res) => res.json())
+      .then((user) => {
+        document.getElementById("billingPlan").textContent =
+          user.activePlan ? user.activePlan.name : "-";
+
+        document.getElementById("billingPlanSpecs").textContent =
+          user.activePlan ? user.activePlan.specs : "No active plan";
+
+        document.getElementById("billingMethod").textContent =
+          user.paymentMethod || "-";
+
+        document.getElementById("billingMethodSummary").textContent =
+          user.paymentSummary || "No payment method";
+
+        const invoices = user.invoices || [];
+        document.getElementById("billingInvoiceCount").textContent = invoices.length;
+
+        const actions = document.getElementById("billingActions");
+        let actionsHtml = `<a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>`;
+
+        if (user.stripeCustomerId) {
+          actionsHtml = `
+            <form action="/create-customer-portal-session" method="POST">
+              <button type="submit" class="btn btn-primary">Manage Stripe Billing</button>
+            </form>
+            <form action="/cancel-subscription-direct" method="POST">
+              <button type="submit" class="btn btn-secondary">Cancel Subscription</button>
+            </form>
+            <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+          `;
+        }
+
+        actions.innerHTML = actionsHtml;
+
+        const tbody = document.getElementById("invoiceTableBody");
+
+        if (!invoices.length) return;
+
+        tbody.innerHTML = invoices
+          .map(
+            (invoice) => `
+              <tr>
+                <td>${invoice.invoice_number}</td>
+                <td>${invoice.description}</td>
+                <td>${invoice.amount}</td>
+                <td><span class="badge-paid">${invoice.status}</span></td>
+                <td>${invoice.payment_method}</td>
+                <td>${invoice.issue_date}</td>
+                <td>${invoice.renewal_date}</td>
+              </tr>
+            `
+          )
+          .join("");
+      });
+  </script>
+</body>
+</html>

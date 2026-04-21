@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=30" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">BlackOrbit Dashboard</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/">Home</a>
+      <a class="btn btn-secondary" href="/billing">Billing</a>
+      <a class="btn btn-secondary" href="/support">Support</a>
+      <a class="btn btn-secondary" href="/admin">Admin</a>
+      <a class="btn btn-secondary" href="/checkout">Buy Plan</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div id="messageBox"></div>
+
+    <div class="dashboard-top">
+      <div>
+        <h1>Welcome, <span id="username">User</span></h1>
+        <p>Your account is ready. Start by choosing a plan and deploying your first service.</p>
+      </div>
+      <div class="status-badge">Active Account</div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-card plan-highlight">
+        <h3>Current Plan</h3>
+        <p class="small-muted" id="planName">No active plan</p>
+        <div class="metric" id="planPrice">-</div>
+        <p id="planSpecs">You have not purchased a hosting plan yet.</p>
+        <p class="small-muted" id="planLimit">Service limit: -</p>
+
+        <div class="quick-actions">
+          <a class="btn btn-primary" href="/checkout">Choose Plan</a>
+          <a class="btn btn-secondary" href="/billing">Manage Billing</a>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>CPU Usage</h3>
+        <div class="metric" id="cpuUsage">0%</div>
+        <p class="small-muted" id="cpuText">No active service usage yet.</p>
+        <div class="bar"><div class="fill" id="cpuBar"></div></div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Memory Usage</h3>
+        <div class="metric" id="memoryUsage">0.0 GB</div>
+        <p class="small-muted" id="memoryText">No active service usage yet.</p>
+        <div class="bar"><div class="fill" id="memoryBar"></div></div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Account Info</h3>
+        <p>Username: <strong id="username2">loading...</strong></p>
+        <p>Email: <strong id="email">loading...</strong></p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Payment Method</h3>
+        <p id="paymentMethod">No payment method selected yet.</p>
+        <p class="small-muted" id="paymentSummary"></p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>Support Tickets</h3>
+        <div class="metric" id="ticketCount">0</div>
+        <p class="small-muted">Open and manage support requests.</p>
+        <div class="quick-actions">
+          <a class="btn btn-secondary" href="/support">Open Support</a>
+        </div>
+      </div>
+
+      <div class="dashboard-card big-card">
+        <h3>Your Services</h3>
+        <div id="servicesContainer" class="service-list">
+          <div class="service-item">
+            <strong>No services yet</strong>
+            <span class="small-muted">Buy a plan and create your first service to see it here.</span>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <a class="btn btn-primary" href="/create-service">Create First Service</a>
+          <a class="btn btn-secondary" href="/manage-services">Manage Services</a>
+          <a class="btn btn-secondary" href="/checkout">Upgrade Plan</a>
+          <a class="btn btn-secondary" href="/billing">Manage Billing</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const successMessages = {
+      stripe_redirect: "Payment flow completed. If webhook arrived, your plan has been updated.",
+      service_created: "Your service was created successfully."
+    };
+
+    const errorMessages = {
+      no_plan: "You need an active plan before creating a service."
+    };
+
+    if (success && successMessages[success]) {
+      box.innerHTML = `<div class="alert alert-success">${successMessages[success]}</div>`;
+    }
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+
+    fetch("/api/me")
+      .then((res) => {
+        if (!res.ok) {
+          window.location.href = "/login.html";
+          return null;
+        }
+        return res.json();
+      })
+      .then((user) => {
+        if (!user) return;
+
+        document.getElementById("username").textContent = user.username;
+        document.getElementById("username2").textContent = user.username;
+        document.getElementById("email").textContent = user.email;
+        document.getElementById("ticketCount").textContent = (user.tickets || []).length;
+
+        if (user.activePlan) {
+          document.getElementById("planName").textContent = user.activePlan.name;
+          document.getElementById("planPrice").textContent = user.activePlan.price;
+          document.getElementById("planSpecs").textContent = user.activePlan.specs;
+          document.getElementById("planLimit").textContent = `Service limit: ${user.activePlan.serviceLimit}`;
+        }
+
+        if (user.paymentMethod) {
+          document.getElementById("paymentMethod").textContent = user.paymentMethod;
+        }
+
+        if (user.paymentSummary) {
+          document.getElementById("paymentSummary").textContent = user.paymentSummary;
+        }
+
+        const cpu = Number(user.cpuUsage || 0);
+        document.getElementById("cpuUsage").textContent = `${cpu}%`;
+        document.getElementById("cpuText").textContent =
+          cpu > 0 ? "Live usage based on your online services." : "No active service usage yet.";
+        document.getElementById("cpuBar").style.width = `${cpu}%`;
+
+        const memoryText = user.memoryUsage || "0.0 GB";
+        document.getElementById("memoryUsage").textContent = memoryText;
+        const memoryNumber = parseFloat(memoryText) || 0;
+        const memoryPercent = Math.min(Math.round(memoryNumber * 20), 100);
+        document.getElementById("memoryText").textContent =
+          memoryNumber > 0 ? "Live usage based on your online services." : "No active service usage yet.";
+        document.getElementById("memoryBar").style.width = `${memoryPercent}%`;
+
+        const servicesContainer = document.getElementById("servicesContainer");
+
+        if (user.services && user.services.length > 0) {
+          servicesContainer.innerHTML = user.services
+            .map(
+              (service) => `
+                <div class="service-item">
+                  <strong>${service.name}</strong>
+                  <span class="small-muted">
+                    Status: ${service.status} • Location: ${service.region} • ${service.runtime}
+                  </span>
+                  <div class="quick-actions">
+                    <a class="btn btn-secondary" href="/service?id=${service.id}">Open Panel</a>
+                  </div>
+                </div>
+              `
+            )
+            .join("");
+        }
+      });
+  </script>
+</body>
+</html>

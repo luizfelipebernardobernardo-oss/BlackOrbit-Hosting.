@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support - BlackOrbit</title>
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">Support Center</div>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="/dashboard">Dashboard</a>
+      <a class="btn btn-primary" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div id="messageBox"></div>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <h3>Create Ticket</h3>
+
+        <form action="/support/create" method="POST">
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" name="subject" placeholder="Need help with my service" required />
+          </div>
+
+          <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" placeholder="Describe your issue here..." required></textarea>
+          </div>
+
+          <div class="quick-actions">
+            <button type="submit" class="btn btn-primary">Create Ticket</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="dashboard-card big-card">
+        <h3>Your Tickets</h3>
+        <div id="ticketList" class="ticket-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    const box = document.getElementById("messageBox");
+
+    const errorMessages = {
+      empty_fields: "Please fill in all fields.",
+      ticket_not_found: "Ticket not found.",
+      server_error: "Server error."
+    };
+
+    if (error && errorMessages[error]) {
+      box.innerHTML = `<div class="alert alert-error">${errorMessages[error]}</div>`;
+    }
+
+    fetch("/api/tickets")
+      .then((res) => res.json())
+      .then((tickets) => {
+        const ticketList = document.getElementById("ticketList");
+
+        if (!tickets || tickets.length === 0) {
+          ticketList.innerHTML = `
+            <div class="ticket-item">
+              <strong>No tickets yet</strong>
+              <span class="small-muted">Create your first support ticket.</span>
+            </div>
+          `;
+          return;
+        }
+
+        ticketList.innerHTML = tickets
+          .map(
+            (ticket) => `
+              <div class="ticket-item">
+                <strong>${ticket.subject}</strong>
+                <span class="small-muted">
+                  Status: ${ticket.status} • Created: ${new Date(ticket.created_at).toLocaleString()}
+                </span>
+                <div class="quick-actions">
+                  <a class="btn btn-secondary" href="/ticket?id=${ticket.id}">Open Ticket</a>
+                </div>
+              </div>
+            `
+          )
+          .join("");
+      });
+  </script>
+</body>
+</html>
