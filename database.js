@@ -105,6 +105,7 @@ db.serialize(() => {
       price_id TEXT NOT NULL,
       status TEXT NOT NULL,
       created_at TEXT NOT NULL,
+      completed_at TEXT,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
